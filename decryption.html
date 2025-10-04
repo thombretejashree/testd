@@ -7,7 +7,17 @@
     <div class="input-area">
         <h3><i class="fas fa-pencil-alt"></i> Enter Encrypted Text</h3>
         <textarea id="text-to-decrypt" class="text-input" placeholder="Paste your encrypted data here..."></textarea>
-    </div>
+        
+        <div class="upload-area">
+            <i class="fas fa-file-upload"></i>
+            <h3>Or Upload an Encrypted File</h3>
+            <p>Select the .txt file from the encrypted .zip archive</p>
+            <input type="file" id="encrypted-file-upload" style="display: none;">
+            <button class="btn" onclick="document.getElementById('encrypted-file-upload').click()">
+                <i class="fas fa-folder-open"></i> Select File
+            </button>
+        </div>
+        </div>
 
     <div class="options">
         <h3><i class="fas fa-key"></i> Decryption Key</h3>
@@ -29,17 +39,30 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script>
     const textInput = document.getElementById('text-to-decrypt');
+    const fileInput = document.getElementById('encrypted-file-upload');
     const keyInput = document.getElementById('decryption-key');
     const decryptBtn = document.getElementById('decrypt-btn');
     const resultBox = document.getElementById('decryption-result-box');
     const decryptedOutput = document.getElementById('decrypted-output');
+
+    // START: Added File Reader Logic
+    fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            textInput.value = e.target.result;
+        };
+        reader.readAsText(file);
+    });
+    // END: Added File Reader Logic
 
     decryptBtn.addEventListener('click', () => {
         const encryptedText = textInput.value;
         const password = keyInput.value;
 
         if (!encryptedText) {
-            alert('Please enter the text to decrypt.');
+            alert('Please enter or upload the text to decrypt.');
             return;
         }
         if (!password) {
@@ -48,16 +71,13 @@
         }
 
         try {
-            // Decrypt the data
             const bytes = CryptoJS.AES.decrypt(encryptedText, password);
             const originalText = bytes.toString(CryptoJS.enc.Utf8);
 
-            // Check if decryption was successful
             if (originalText) {
                 decryptedOutput.value = originalText;
                 resultBox.style.display = 'block';
             } else {
-                // This will trigger if the key is wrong or data is corrupt
                 throw new Error('Decryption failed. Check key or data.');
             }
         } catch (error) {
