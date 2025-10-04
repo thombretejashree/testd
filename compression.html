@@ -8,37 +8,64 @@
         <i class="fas fa-cloud-upload-alt"></i>
         <h3>Upload Files to Compress</h3>
         <p>Drag & drop files here or click to browse</p>
-        <input type="file" id="file-upload" style="display: none;">
-        <button class="btn" onclick="document.getElementById('file-upload').click()">
+        <input type="file" id="files-to-compress" style="display: none;" multiple>
+        <button class="btn" onclick="document.getElementById('files-to-compress').click()">
             <i class="fas fa-folder-open"></i> Select Files
         </button>
     </div>
-    
-    <div class="options">
-        <h3><i class="fas fa-cog"></i> Compression Options</h3>
-        <div class="radio-group">
-            <div class="radio-option">
-                <input type="radio" id="zip" name="compression" checked>
-                <label for="zip">ZIP</label>
-            </div>
-            <div class="radio-option">
-                <input type="radio" id="gzip" name="compression">
-                <label for="gzip">GZIP</label>
-            </div>
-            <div class="radio-option">
-                <input type="radio" id="bzip2" name="compression">
-                <label for="bzip2">BZIP2</label>
-            </div>
-            <div class="radio-option">
-                <input type="radio" id="7z" name="compression">
-                <label for="7z">7-Zip</label>
-            </div>
+
+    <div id="file-list-area" style="margin-top: 20px;">
         </div>
-    </div>
     
-    <div class="action-btn">
-        <a href="#" class="btn">
-            <i class="fas fa-compress-alt"></i> Compress & Download
-        </a>
+    <div class="action-btn" style="margin-top: 30px;">
+        <button id="compress-btn" class="btn">
+            <i class="fas fa-compress-alt"></i> Compress & Download ZIP
+        </button>
     </div>
 </main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+    const fileInput = document.getElementById('files-to-compress');
+    const compressBtn = document.getElementById('compress-btn');
+    const fileListArea = document.getElementById('file-list-area');
+    let filesToCompress = [];
+
+    fileInput.addEventListener('change', (event) => {
+        filesToCompress = Array.from(event.target.files);
+        fileListArea.innerHTML = '<h3>Selected Files:</h3>';
+        if (filesToCompress.length > 0) {
+            const list = document.createElement('ul');
+            filesToCompress.forEach(file => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+                list.appendChild(listItem);
+            });
+            fileListArea.appendChild(list);
+        } else {
+            fileListArea.innerHTML = '';
+        }
+    });
+
+    compressBtn.addEventListener('click', () => {
+        if (filesToCompress.length === 0) {
+            alert('Please select at least one file to compress.');
+            return;
+        }
+
+        const zip = new JSZip();
+        filesToCompress.forEach(file => {
+            zip.file(file.name, file);
+        });
+
+        zip.generateAsync({ type: "blob" })
+           .then(function(content) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = "compressed_files.zip";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+           });
+    });
+</script>
