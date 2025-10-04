@@ -1,47 +1,12 @@
 <main class="container">
-    <style>
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-        }
-        .tab-btn {
-            padding: 10px 20px;
-            cursor: pointer;
-            border: none;
-            background-color: transparent;
-            color: var(--light);
-            font-size: 16px;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-        .tab-btn.active {
-            color: var(--accent);
-            border-bottom: 2px solid var(--accent);
-            font-weight: 600;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .copy-btn-wrapper {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 10px;
-        }
-    </style>
-
     <div class="page-title">
         <h1><i class="fas fa-eye-slash"></i> Steganography</h1>
         <p>Hide or reveal a secret message in an image file.</p>
     </div>
 
-    <div class="upload-area">
+    <div class="upload-area" id="upload-area">
         <i class="fas fa-image"></i>
-        <h3>Upload Image</h3>
+        <h3 id="upload-title">Upload Image</h3>
         <p id="upload-text">Drag & drop your image here or click to browse</p>
         <input type="file" id="stego-image-input" style="display: none;" accept="image/png, image/jpeg">
         <button class="btn" onclick="document.getElementById('stego-image-input').click()">
