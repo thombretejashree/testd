@@ -3,50 +3,64 @@
         <h1><i class="fas fa-unlock"></i> Decrypt Your Data</h1>
         <p>Access your encrypted data with the right key</p>
     </div>
-    
+
     <div class="input-area">
         <h3><i class="fas fa-pencil-alt"></i> Enter Encrypted Text</h3>
-        <textarea class="text-input" placeholder="Paste your encrypted data here..."></textarea>
-        
-        <div class="upload-area">
-            <i class="fas fa-file-upload"></i>
-            <h3>Or Upload an Encrypted File</h3>
-            <p>Drag & drop files here or click to browse</p>
-            <input type="file" id="file-upload" style="display: none;">
-            <button class="btn" onclick="document.getElementById('file-upload').click()">
-                <i class="fas fa-folder-open"></i> Select File
-            </button>
-        </div>
+        <textarea id="text-to-decrypt" class="text-input" placeholder="Paste your encrypted data here..."></textarea>
     </div>
-    
+
     <div class="options">
         <h3><i class="fas fa-key"></i> Decryption Key</h3>
-        <input type="text" class="key-input" placeholder="Enter the encryption key/password used to encrypt this data">
-        
-        <h3><i class="fas fa-cog"></i> Encryption Method</h3>
-        <div class="radio-group">
-            <div class="radio-option">
-                <input type="radio" id="aes" name="encryption" checked>
-                <label for="aes">AES-256</label>
-            </div>
-            <div class="radio-option">
-                <input type="radio" id="rsa" name="encryption">
-                <label for="rsa">RSA</label>
-            </div>
-            <div class="radio-option">
-                <input type="radio" id="blowfish" name="encryption">
-                <label for="blowfish">Blowfish</label>
-            </div>
-            <div class="radio-option">
-                <input type="radio" id="twofish" name="encryption">
-                <label for="twofish">Twofish</label>
-            </div>
-        </div>
+        <input type="text" id="decryption-key" class="key-input" placeholder="Enter the password used for encryption">
+    </div>
+
+    <div class="action-btn">
+        <button id="decrypt-btn" class="btn">
+            <i class="fas fa-unlock"></i> Decrypt Text
+        </button>
     </div>
     
-    <div class="action-btn">
-        <a href="hashing.html" class="btn">
-            <i class="fas fa-unlock"></i> Decrypt & Proceed to Hashing
-        </a>
+    <div id="decryption-result-box" style="display: none; margin-top: 30px;">
+        <h3><i class="fas fa-file-alt"></i> Decrypted Text</h3>
+        <textarea id="decrypted-output" class="text-input" readonly></textarea>
     </div>
 </main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script>
+    const textInput = document.getElementById('text-to-decrypt');
+    const keyInput = document.getElementById('decryption-key');
+    const decryptBtn = document.getElementById('decrypt-btn');
+    const resultBox = document.getElementById('decryption-result-box');
+    const decryptedOutput = document.getElementById('decrypted-output');
+
+    decryptBtn.addEventListener('click', () => {
+        const encryptedText = textInput.value;
+        const password = keyInput.value;
+
+        if (!encryptedText) {
+            alert('Please enter the text to decrypt.');
+            return;
+        }
+        if (!password) {
+            alert('Please enter the decryption key.');
+            return;
+        }
+
+        try {
+            const bytes = CryptoJS.AES.decrypt(encryptedText, password);
+            const originalText = bytes.toString(CryptoJS.enc.Utf8);
+
+            if (originalText) {
+                decryptedOutput.value = originalText;
+                resultBox.style.display = 'block';
+            } else {
+                throw new Error('Decryption failed. Check key or data.');
+            }
+        } catch (error) {
+            console.error('Decryption Error:', error);
+            alert('Decryption failed. Please make sure your key and encrypted text are correct.');
+            resultBox.style.display = 'none';
+        }
+    });
+</script>
