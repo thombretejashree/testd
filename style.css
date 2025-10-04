@@ -59,8 +59,7 @@ body { background-color: var(--dark); color: var(--light); line-height: 1.6; tra
     overflow: hidden;
     word-wrap: break-word;
     overflow-wrap: break-word;
-}
-.card:hover {
+}.card:hover {
     transform: translateY(-10px);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
     background: rgba(255, 255, 255, 0.15);
@@ -229,5 +228,6 @@ footer {
     padding: 30px 0;
     margin-top: 60px;
 }
+
 
 
