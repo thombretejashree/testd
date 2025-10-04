@@ -3,61 +3,90 @@
         <h1><i class="fas fa-fingerprint"></i> Generate Secure Hashes</h1>
         <p>Create unique digital fingerprints for your data</p>
     </div>
-    
+
     <div class="input-area">
         <h3><i class="fas fa-pencil-alt"></i> Enter Text to Hash</h3>
-        <textarea class="text-input" placeholder="Type or paste the text you want to hash..."></textarea>
-        
-        <div class="upload-area">
-            <i class="fas fa-file-upload"></i>
-            <h3>Or Upload a File</h3>
-            <p>Drag & drop files here or click to browse</p>
-            <input type="file" id="file-upload" style="display: none;">
-            <button class="btn" onclick="document.getElementById('file-upload').click()">
-                <i class="fas fa-folder-open"></i> Select File
-            </button>
-        </div>
+        <textarea id="text-to-hash" class="text-input" placeholder="Type or paste the text you want to hash..."></textarea>
     </div>
-    
+
     <div class="options">
         <h3><i class="fas fa-cog"></i> Hash Algorithm</h3>
-        <div class="radio-group">
+        <div class="radio-group" id="hash-algo-group">
             <div class="radio-option">
-                <input type="radio" id="sha256" name="algorithm" checked>
+                <input type="radio" id="sha256" name="algorithm" value="SHA256" checked>
                 <label for="sha256">SHA-256</label>
             </div>
             <div class="radio-option">
-                <input type="radio" id="sha512" name="algorithm">
+                <input type="radio" id="sha512" name="algorithm" value="SHA512">
                 <label for="sha512">SHA-512</label>
             </div>
             <div class="radio-option">
-                <input type="radio" id="md5" name="algorithm">
+                <input type="radio" id="md5" name="algorithm" value="MD5">
                 <label for="md5">MD5</label>
             </div>
             <div class="radio-option">
-                <input type="radio" id="sha1" name="algorithm">
+                <input type="radio" id="sha1" name="algorithm" value="SHA1">
                 <label for="sha1">SHA-1</label>
             </div>
         </div>
-        
-        <button class="btn" style="width: 100%;" onclick="document.querySelector('.hash-result').style.display = 'block'">
+        <button id="generate-hash-btn" class="btn" style="width: 100%;">
             <i class="fas fa-hashtag"></i> Generate Hash
         </button>
     </div>
-    
-    <div class="hash-result">
+
+    <div id="hash-result-box" class="hash-result" style="display: none;">
         <h3><i class="fas fa-hashtag"></i> Generated Hash</h3>
-        <div class="hash-output">
-            e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-        </div>
-        <button class="btn" style="margin-top: 15px; width: 100%;">
+        <div id="hash-output" class="hash-output"></div>
+        <button id="copy-hash-btn" class="btn" style="margin-top: 15px; width: 100%;">
             <i class="fas fa-copy"></i> Copy to Clipboard
         </button>
     </div>
-    
-    <div class="action-btn">
-        <a href="steganography.html" class="btn">
-            <i class="fas fa-hashtag"></i> Proceed to Steganography
-        </a>
-    </div>
 </main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script>
+    const textInput = document.getElementById('text-to-hash');
+    const generateBtn = document.getElementById('generate-hash-btn');
+    const resultBox = document.getElementById('hash-result-box');
+    const hashOutput = document.getElementById('hash-output');
+    const copyBtn = document.getElementById('copy-hash-btn');
+
+    generateBtn.addEventListener('click', () => {
+        const text = textInput.value;
+        if (!text) {
+            alert('Please enter text to hash.');
+            return;
+        }
+
+        const selectedAlgo = document.querySelector('input[name="algorithm"]:checked').value;
+        let hash;
+
+        // Calculate hash based on selected algorithm
+        switch (selectedAlgo) {
+            case 'SHA256':
+                hash = CryptoJS.SHA256(text).toString();
+                break;
+            case 'SHA512':
+                hash = CryptoJS.SHA512(text).toString();
+                break;
+            case 'MD5':
+                hash = CryptoJS.MD5(text).toString();
+                break;
+            case 'SHA1':
+                hash = CryptoJS.SHA1(text).toString();
+                break;
+        }
+
+        hashOutput.textContent = hash;
+        resultBox.style.display = 'block';
+    });
+
+    copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(hashOutput.textContent).then(() => {
+            alert('Hash copied to clipboard!');
+        }, (err) => {
+            alert('Failed to copy hash.');
+            console.error('Copy error:', err);
+        });
+    });
+</script>
