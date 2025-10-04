@@ -17,7 +17,7 @@
                 <i class="fas fa-folder-open"></i> Select File
             </button>
         </div>
-        </div>
+    </div>
 
     <div class="options">
         <h3><i class="fas fa-key"></i> Decryption Key</h3>
@@ -33,57 +33,79 @@
     <div id="decryption-result-box" style="display: none; margin-top: 30px;">
         <h3><i class="fas fa-file-alt"></i> Decrypted Text</h3>
         <textarea id="decrypted-output" class="text-input" readonly></textarea>
+        <button id="download-decrypted-btn" class="btn" style="margin-top: 15px; width: 100%;">
+            <i class="fas fa-download"></i> Download Decrypted File
+        </button>
     </div>
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script>
-    const textInput = document.getElementById('text-to-decrypt');
-    const fileInput = document.getElementById('encrypted-file-upload');
-    const keyInput = document.getElementById('decryption-key');
-    const decryptBtn = document.getElementById('decrypt-btn');
-    const resultBox = document.getElementById('decryption-result-box');
-    const decryptedOutput = document.getElementById('decrypted-output');
+    // This function isolates the script to prevent conflicts
+    (function() {
+        const textInput = document.getElementById('text-to-decrypt');
+        const fileInput = document.getElementById('encrypted-file-upload');
+        const keyInput = document.getElementById('decryption-key');
+        const decryptBtn = document.getElementById('decrypt-btn');
+        const resultBox = document.getElementById('decryption-result-box');
+        const decryptedOutput = document.getElementById('decrypted-output');
+        const downloadBtn = document.getElementById('download-decrypted-btn');
 
-    // START: Added File Reader Logic
-    fileInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            textInput.value = e.target.result;
-        };
-        reader.readAsText(file);
-    });
-    // END: Added File Reader Logic
+        if (!decryptBtn) return; // Stop if elements aren't on the page
 
-    decryptBtn.addEventListener('click', () => {
-        const encryptedText = textInput.value;
-        const password = keyInput.value;
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                textInput.value = e.target.result;
+            };
+            reader.readAsText(file);
+        });
 
-        if (!encryptedText) {
-            alert('Please enter or upload the text to decrypt.');
-            return;
-        }
-        if (!password) {
-            alert('Please enter the decryption key.');
-            return;
-        }
+        decryptBtn.addEventListener('click', () => {
+            const encryptedText = textInput.value;
+            const password = keyInput.value;
 
-        try {
-            const bytes = CryptoJS.AES.decrypt(encryptedText, password);
-            const originalText = bytes.toString(CryptoJS.enc.Utf8);
-
-            if (originalText) {
-                decryptedOutput.value = originalText;
-                resultBox.style.display = 'block';
-            } else {
-                throw new Error('Decryption failed. Check key or data.');
+            if (!encryptedText) {
+                alert('Please enter or upload the text to decrypt.');
+                return;
             }
-        } catch (error) {
-            console.error('Decryption Error:', error);
-            alert('Decryption failed. Please make sure your key and encrypted text are correct.');
-            resultBox.style.display = 'none';
-        }
-    });
+            if (!password) {
+                alert('Please enter the decryption key.');
+                return;
+            }
+
+            try {
+                const bytes = CryptoJS.AES.decrypt(encryptedText, password);
+                const originalText = bytes.toString(CryptoJS.enc.Utf8);
+
+                if (originalText) {
+                    decryptedOutput.value = originalText;
+                    resultBox.style.display = 'block';
+                } else {
+                    throw new Error('Decryption failed.');
+                }
+            } catch (error) {
+                console.error('Decryption Error:', error);
+                alert('Decryption failed. Please make sure your key and encrypted text are correct.');
+                resultBox.style.display = 'none';
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            const textToDownload = decryptedOutput.value;
+            if (!textToDownload) {
+                alert('No decrypted text to download.');
+                return;
+            }
+            const blob = new Blob([textToDownload], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'decrypted-data.txt';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    })();
 </script>
