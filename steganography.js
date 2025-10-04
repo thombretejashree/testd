@@ -1,79 +1,134 @@
 (function() {
+    // Elements for embedding
     const embedBtn = document.getElementById('embed-btn');
     const coverFileInput = document.getElementById('cover-file');
     const secretMessageInput = document.getElementById('secret-message');
-    const canvas = document.getElementById('canvas');
     const outputSection = document.getElementById('output-section');
     const downloadLink = document.getElementById('download-link');
 
-    // This check is crucial. If the elements aren't found, it means we are not on the steganography page, so the script will stop.
-    if (!embedBtn || !coverFileInput || !secretMessageInput || !canvas || !outputSection || !downloadLink) {
-        return; 
-    }
+    // Elements for extracting
+    const extractBtn = document.getElementById('extract-btn');
+    const stegoFileInput = document.getElementById('stego-file');
+    const extractedOutputSection = document.getElementById('extracted-output-section');
+    const extractedMessageTextarea = document.getElementById('extracted-message');
 
+    // Canvas for processing
+    const canvas = document.getElementById('canvas');
+    if (!canvas) return; // Stop if canvas isn't on the page
     const ctx = canvas.getContext('2d');
 
-    embedBtn.addEventListener('click', () => {
-        const coverFile = coverFileInput.files[0];
-        const message = secretMessageInput.value;
+    // --- EMBEDDING LOGIC ---
+    if (embedBtn) {
+        embedBtn.addEventListener('click', () => {
+            const coverFile = coverFileInput.files[0];
+            const message = secretMessageInput.value;
 
-        if (!coverFile || !message) {
-            alert('Please select an image file and enter a secret message.');
-            return;
-        }
+            if (!coverFile || !message) {
+                alert('Please select an image file and enter a secret message to embed.');
+                return;
+            }
 
-        const reader = new FileReader();
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
 
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    const delimiter = "_#_";
+                    const messageInBinary = stringToBinary(message + delimiter);
+                    
+                    if (messageInBinary.length > (data.length / 4) * 3) {
+                        alert('Message is too long for this image.');
+                        return;
+                    }
 
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = imageData.data;
-
-                const delimiter = "_#_";
-                const messageInBinary = stringToBinary(message + delimiter);
-                
-                if (messageInBinary.length > (data.length / 4) * 3) {
-                    alert('The message is too long to be hidden in this image.');
-                    return;
-                }
-
-                let dataIndex = 0;
-                for (let i = 0; i < messageInBinary.length; i++) {
-                    while ((dataIndex + 1) % 4 === 0) {
+                    let dataIndex = 0;
+                    for (let i = 0; i < messageInBinary.length; i++) {
+                        while ((dataIndex + 1) % 4 === 0) dataIndex++; // Skip alpha channel
+                        data[dataIndex] = (messageInBinary[i] === '1') ? (data[dataIndex] | 1) : (data[dataIndex] & 254);
                         dataIndex++;
                     }
-                    
-                    if (messageInBinary[i] === '1') {
-                        data[dataIndex] = data[dataIndex] | 1;
-                    } else {
-                        data[dataIndex] = data[dataIndex] & 254;
-                    }
-                    dataIndex++;
-                }
 
-                ctx.putImageData(imageData, 0, 0);
-
-                const newImageUrl = canvas.toDataURL('image/png');
-                downloadLink.href = newImageUrl;
-                outputSection.style.display = 'block';
-                alert('Success! Your message has been embedded. Click "Download Image" to save it.');
+                    ctx.putImageData(imageData, 0, 0);
+                    downloadLink.href = canvas.toDataURL('image/png');
+                    outputSection.style.display = 'block';
+                    alert('Success! Message embedded. Click "Download Image" to save.');
+                };
+                img.src = e.target.result;
             };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(coverFile);
-    });
-
-    function stringToBinary(str) {
-        let binaryString = '';
-        for (let i = 0; i < str.length; i++) {
-            let binaryChar = str.charCodeAt(i).toString(2).padStart(8, '0');
-            binaryString += binaryChar;
-        }
-        return binaryString;
+            reader.readAsDataURL(coverFile);
+        });
     }
+
+    // --- EXTRACTING LOGIC ---
+    if (extractBtn) {
+        extractBtn.addEventListener('click', () => {
+            const stegoFile = stegoFileInput.files[0];
+
+            if (!stegoFile) {
+                alert('Please select an image file to extract the message from.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    let binaryMessage = '';
+                    let tempBinary = '';
+
+                    for (let i = 0; i < data.length; i++) {
+                        if ((i + 1) % 4 !== 0) { // Skip alpha channel
+                            const lsb = data[i] & 1;
+                            tempBinary += lsb.toString();
+
+                            if (tempBinary.length === 8) {
+                                binaryMessage += tempBinary;
+                                tempBinary = '';
+
+                                // Check if the delimiter is found
+                                const decodedString = binaryToString(binaryMessage);
+                                if (decodedString.endsWith('_#_')) {
+                                    const finalMessage = decodedString.substring(0, decodedString.length - 3);
+                                    extractedMessageTextarea.value = finalMessage;
+                                    extractedOutputSection.style.display = 'block';
+                                    return; // Stop processing
+                                }
+                            }
+                        }
+                    }
+                    alert('No hidden message found or the message is corrupted.');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(stegoFile);
+        });
+    }
+
+    // --- HELPER FUNCTIONS ---
+    function stringToBinary(str) {
+        return str.split('').map(char => char.charCodeAt(0).toString(2).padStart(8, '0')).join('');
+    }
+
+    function binaryToString(binary) {
+        let str = '';
+        for (let i = 0; i < binary.length; i += 8) {
+            const byte = binary.substr(i, 8);
+            if (byte.length === 8) {
+                str += String.fromCharCode(parseInt(byte, 2));
+            }
+        }
+        return str;
+    }
+
 })();
