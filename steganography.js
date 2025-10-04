@@ -2,6 +2,8 @@
     // --- Universal Elements ---
     const stegoImageInput = document.getElementById('stego-image-input');
     const canvas = document.getElementById('canvas');
+    const uploadArea = document.querySelector('.upload-area');
+    const uploadText = document.getElementById('upload-text');
 
     // --- Tab Elements ---
     const insertTabBtn = document.getElementById('insert-tab-btn');
@@ -20,11 +22,42 @@
     const extractedMessageTextarea = document.getElementById('extracted-message');
     const copyTextBtn = document.getElementById('copy-text-btn');
 
-    // Basic check to ensure we are on the steganography page
     if (!insertTabBtn || !canvas) {
         return;
     }
     const ctx = canvas.getContext('2d');
+
+    // --- NEW: UPLOAD BOX LOGIC ---
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderStyle = 'solid';
+            uploadArea.style.borderColor = 'var(--accent)';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderStyle = 'dashed';
+            uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderStyle = 'dashed';
+            uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            stegoImageInput.files = e.dataTransfer.files;
+            const changeEvent = new Event('change');
+            stegoImageInput.dispatchEvent(changeEvent);
+        });
+    }
+
+    stegoImageInput.addEventListener('change', () => {
+        if (stegoImageInput.files.length > 0) {
+            uploadText.textContent = `File selected: ${stegoImageInput.files[0].name}`;
+        } else {
+            uploadText.textContent = 'Drag & drop your image here or click to browse';
+        }
+    });
+
 
     // --- TAB SWITCHING LOGIC ---
     insertTabBtn.addEventListener('click', () => {
@@ -79,7 +112,6 @@
 
                 ctx.putImageData(imageData, 0, 0);
                 
-                // Create a temporary link to trigger the download
                 const downloadLink = document.createElement('a');
                 downloadLink.href = canvas.toDataURL('image/png');
                 downloadLink.download = 'steganography-image.png';
@@ -116,7 +148,7 @@
                 let binaryMessage = '';
 
                 for (let i = 0; i < data.length; i++) {
-                    if ((i + 1) % 4 !== 0) { // Skip alpha channel
+                    if ((i + 1) % 4 !== 0) {
                         binaryMessage += (data[i] & 1).toString();
                     }
                 }
