@@ -48,13 +48,16 @@
         }
 
         try {
+            // Decrypt the data
             const bytes = CryptoJS.AES.decrypt(encryptedText, password);
             const originalText = bytes.toString(CryptoJS.enc.Utf8);
 
+            // Check if decryption was successful
             if (originalText) {
                 decryptedOutput.value = originalText;
                 resultBox.style.display = 'block';
             } else {
+                // This will trigger if the key is wrong or data is corrupt
                 throw new Error('Decryption failed. Check key or data.');
             }
         } catch (error) {
