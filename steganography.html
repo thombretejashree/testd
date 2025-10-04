@@ -1,61 +1,64 @@
-<main class="container">
-    <div class="page-title">
-        <h1><i class="fas fa-eye-slash"></i> Embed a Message</h1>
-        <p>Hide a secret message inside an image file.</p>
-    </div>
-    
-    <div class="input-area">
-        <div class="form-group">
-            <label for="cover-file" style="color: var(--accent); margin-bottom: 10px;">1. Upload Cover File (Image):</label>
-            <input type="file" id="cover-file" accept="image/png, image/jpeg" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; color: var(--light);">
+<main class="container" style="display: block;"> <div class="steganography-section" style="margin-bottom: 40px;">
+        <div class="page-title">
+            <h1><i class="fas fa-eye-slash"></i> Embed a Message</h1>
+            <p>Hide a secret message inside an image file.</p>
         </div>
-    </div>
 
-    <div class="options">
-        <h3><i class="fas fa-key"></i> 2. Data to Hide</h3>
-        <textarea id="secret-message" class="text-input" rows="6" placeholder="Type your secret message here..."></textarea>
+        <div class="input-area">
+            <div class="form-group">
+                <label for="cover-file" style="color: var(--accent); margin-bottom: 10px;">1. Upload Cover File (Image):</label>
+                <input type="file" id="cover-file" accept="image/png, image/jpeg" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; color: var(--light);">
+            </div>
+        </div>
+
+        <div class="options">
+            <h3><i class="fas fa-key"></i> 2. Data to Hide</h3>
+            <textarea id="secret-message" class="text-input" rows="6" placeholder="Type your secret message here..."></textarea>
+            
+            <h3><i class="fas fa-cog"></i> 3. Steganography Method</h3>
+            <select id="method-select" class="key-input" style="width: 100%;">
+                <option value="lsb">Least Significant Bit (LSB)</option>
+            </select>
+        </div>
         
-        <h3><i class="fas fa-cog"></i> 3. Steganography Method</h3>
-        <select id="method-select" class="key-input" style="width: 100%;">
-            <option value="lsb">Least Significant Bit (LSB)</option>
-        </select>
-    </div>
-    
-    <div class="action-btn">
-        <button id="embed-btn" class="btn">
-            <i class="fas fa-check-circle"></i> Embed Data
-        </button>
-    </div>
+        <div class="action-btn">
+            <button id="embed-btn" class="btn">
+                <i class="fas fa-check-circle"></i> Embed Data
+            </button>
+        </div>
 
-    <div id="output-section" style="display:none; margin-top: 30px; text-align: center; background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 10px;">
-        <h3>Processing Complete!</h3>
-        <p>Your new image with the hidden message has been generated.</p>
-        <a id="download-link" class="btn" download="steganography-image.png" style="margin-top: 15px;">Download Image</a>
-    </div>
-
-    <hr style="border-color: rgba(255,255,255,0.1); margin: 40px 0;">
-
-    <div class="page-title">
-        <h1><i class="fas fa-search"></i> Extract a Message</h1>
-        <p>Reveal a secret message from an image file.</p>
-    </div>
-
-    <div class="input-area">
-        <div class="form-group">
-            <label for="stego-file" style="color: var(--accent); margin-bottom: 10px;">1. Upload Steganography File:</label>
-            <input type="file" id="stego-file" accept="image/png" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; color: var(--light);">
+        <div id="output-section" style="display:none; margin-top: 30px; text-align: center; background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 10px;">
+            <h3>Processing Complete!</h3>
+            <p>Your new image with the hidden message has been generated.</p>
+            <a id="download-link" class="btn" download="steganography-image.png" style="margin-top: 15px;">Download Image</a>
         </div>
     </div>
-    
-    <div class="action-btn">
-        <button id="extract-btn" class="btn">
-            <i class="fas fa-sync-alt"></i> Extract Data
-        </button>
-    </div>
 
-    <div id="extracted-output-section" style="display:none; margin-top: 20px;">
-        <h3><i class="fas fa-file-alt"></i> Extracted Message:</h3>
-        <textarea id="extracted-message" class="text-input" rows="6" readonly></textarea>
+    <hr style="border-color: rgba(255,255,255,0.1);">
+
+    <div class="steganography-section" style="margin-top: 40px;">
+        <div class="page-title">
+            <h1><i class="fas fa-search"></i> Extract a Message</h1>
+            <p>Reveal a secret message from an image file.</p>
+        </div>
+
+        <div class="input-area">
+            <div class="form-group">
+                <label for="stego-file" style="color: var(--accent); margin-bottom: 10px;">1. Upload Steganography File:</label>
+                <input type="file" id="stego-file" accept="image/png" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; color: var(--light);">
+            </div>
+        </div>
+        
+        <div class="action-btn">
+            <button id="extract-btn" class="btn">
+                <i class="fas fa-sync-alt"></i> Extract Data
+            </button>
+        </div>
+
+        <div id="extracted-output-section" style="display:none; margin-top: 20px;">
+            <h3><i class="fas fa-file-alt"></i> Extracted Message:</h3>
+            <textarea id="extracted-message" class="text-input" rows="6" readonly></textarea>
+        </div>
     </div>
 
     <canvas id="canvas" style="display:none;"></canvas>
