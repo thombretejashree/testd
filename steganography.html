@@ -1,39 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Steganography</title>
-</head>
-<body>
-    <div class="container">
-        <h1>Steganography</h1>
+<main class="container">
+    <div class="page-title">
+        <h1><i class="fas fa-eye-slash"></i> Steganography</h1>
         <p>Hide a secret message inside an image file.</p>
-        <div class="steganography-tool">
-            <div class="form-group">
-                <label for="cover-file">1. Upload Cover File (Image):</label>
-                <input type="file" id="cover-file" accept="image/png, image/jpeg">
-            </div>
-            <div class="form-group">
-                <label for="secret-message">2. Enter Secret Message:</label>
-                <textarea id="secret-message" rows="6" placeholder="Type your secret message here..."></textarea>
-            </div>
-            <div class="form-group">
-                <label for="method-select">3. Choose Method:</label>
-                <select id="method-select">
-                    <option value="lsb">Least Significant Bit (LSB)</option>
-                </select>
-            </div>
-            <button id="embed-btn" class="action-btn">Embed Data</button>
-
-            <div id="output-section" style="display:none; margin-top: 20px;">
-                <h2>Processing Complete!</h2>
-                <p>Your new image with the hidden message has been generated.</p>
-                <a id="download-link" class="action-btn" download="steganography-image.png">Download Image</a>
-            </div>
+    </div>
+    
+    <div class="input-area">
+        <div class="form-group">
+            <label for="cover-file" style="color: var(--accent); margin-bottom: 10px;">1. Upload Cover File (Image):</label>
+            <input type="file" id="cover-file" accept="image/png, image/jpeg" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; color: var(--light);">
         </div>
     </div>
+
+    <div class="options">
+        <h3><i class="fas fa-key"></i> 2. Data to Hide</h3>
+        <textarea id="secret-message" class="text-input" rows="6" placeholder="Type your secret message here..."></textarea>
+        
+        <h3><i class="fas fa-cog"></i> 3. Steganography Method</h3>
+        <select id="method-select" class="key-input" style="width: 100%;">
+            <option value="lsb">Least Significant Bit (LSB)</option>
+        </select>
+    </div>
+    
+    <div class="action-btn">
+        <button id="embed-btn" class="btn">
+            <i class="fas fa-check-circle"></i> Embed Data
+        </button>
+    </div>
+
+    <div id="output-section" style="display:none; margin-top: 30px; text-align: center; background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 10px;">
+        <h3>Processing Complete!</h3>
+        <p>Your new image with the hidden message has been generated.</p>
+        <a id="download-link" class="btn" download="steganography-image.png" style="margin-top: 15px;">Download Image</a>
+    </div>
+
     <canvas id="canvas" style="display:none;"></canvas>
     <script src="steganography.js"></script>
-</body>
-</html>
+</main>
